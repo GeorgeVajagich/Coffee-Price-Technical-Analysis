@@ -1,7 +1,7 @@
 ---
 title: "Coffee Price Technical Analysis"
 author: "George Vajagich"
-date: "11/30/2022"
+date: "1/17/2023"
 output: html_document
 ---
 
@@ -125,33 +125,20 @@ ggplot(df, aes(x=past_two_years_performance, y=next_two_years_performance)) + ge
 ```
 
 
+
+
+
 ```{r}
-df <- df %>% mutate(three_years_past = lag(value,n=720))
-df <- df %>% mutate_at(c("value"), tibble::lst("three_years_future"=lead), n = 720)
+df <- df %>% mutate(five_years_past = lag(value,n=1200))
+df <- df %>% mutate_at(c("value"), tibble::lst("five_years_future"=lead), n = 1200)
 ```
 
 ```{r}
-df <- df %>% mutate(next_three_years_performance=(three_years_future/value-1)*100)
-df  <- df %>% mutate(past_three_years_performance=(value/three_years_past-1)*100)
+df <- df %>% mutate(next_five_years_performance=(five_years_future/value-1)*100)
+df  <- df %>% mutate(past_five_years_performance=(value/five_years_past-1)*100)
 ```
 
 ```{r}
-cor(df$past_three_years_performance, df$next_three_years_performance, use = "complete.obs")
-ggplot(df, aes(x=past_three_years_performance, y=next_three_years_performance)) + geom_point(size=0.5) + theme(aspect.ratio=1)
-```
-
-
-```{r}
-df <- df %>% mutate(four_years_past = lag(value,n=960))
-df <- df %>% mutate_at(c("value"), tibble::lst("four_years_future"=lead), n = 960)
-```
-
-```{r}
-df <- df %>% mutate(next_four_years_performance=(four_years_future/value-1)*100)
-df  <- df %>% mutate(past_four_years_performance=(value/four_years_past-1)*100)
-```
-
-```{r}
-cor(df$past_four_years_performance, df$next_four_years_performance, use = "complete.obs")
-ggplot(df, aes(x=past_four_years_performance, y=next_four_years_performance)) + geom_point(size=0.5) + theme(aspect.ratio=1)
+cor(df$past_five_years_performance, df$next_five_years_performance, use = "complete.obs")
+ggplot(df, aes(x=past_five_years_performance, y=next_five_years_performance)) + geom_point(size=0.5) + theme(aspect.ratio=1)
 ```
