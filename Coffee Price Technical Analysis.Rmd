@@ -1,8 +1,11 @@
 ---
 title: "Coffee Price Technical Analysis"
 author: "George Vajagich"
-date: "1/18/2023"
-output: html_document
+date: "1/20/2023"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -42,111 +45,52 @@ head(df)
 ```
 
 ```{r}
-df <- df %>% mutate(one_day_past = lag(value,n=1))
-df <- df %>% mutate_at(c("value"), tibble::lst("one_day_future"=lead), n = 1)
+PVF <- function (days){
+
+  df <- df %>% mutate(past = lag(value,n=days))
+  df <- df %>% mutate_at(c("value"), tibble::lst("future"=lead), n = days)
+
+  df <- df %>% mutate(next_performance=(future/value-1)*100)
+  df  <- df %>% mutate(past_performance=(value/past-1)*100)
+
+  grob = grobTree(textGrob(paste("Correlation : ", round(cor(df$past_performance, df$next_performance, use = "complete.obs"),4)), x = 0.75, y = 0.95, gp = gpar(col = "red", fontsize = 12)))
+  
+print(cor(df$past_performance, df$next_performance, use = "complete.obs")) 
+  
+  ggplot(df, aes(x=past_performance, y=next_performance)) + geom_point(size=0.5) + annotation_custom(grob) + theme(aspect.ratio=1)
+  
+}
+
 ```
 
 
+Past day performance vs Next day performance
 ```{r}
-df <- df %>% mutate(next_one_day_performance=(one_day_future/value-1)*100)
-df  <- df %>% mutate(past_one_day_performance=(value/one_day_past-1)*100)
+PVF(1)
 ```
 
-
+Past week performance vs Next week performance
 ```{r}
-grob = grobTree(textGrob(paste("Correlation : ", round(cor(df$past_one_day_performance, df$next_one_day_performance, use = "complete.obs"),4)), x = 0.75, y = 0.95, gp = gpar(col = "red", fontsize = 12)))
-
-ggplot(df, aes(x=past_one_day_performance, y=next_one_day_performance)) + geom_point(size=0.5) + annotation_custom(grob) + theme(aspect.ratio=1)
+PVF(5)
 ```
 
-
-
+Past month performance vs Next month performance
 ```{r}
-df <- df %>% mutate(week_past = lag(value,n=5))
-df <- df %>% mutate_at(c("value"), tibble::lst("week_future"=lead), n = 5)
+PVF(20)
 ```
 
+Past year performance vs Next year performance
 ```{r}
-df <- df %>% mutate(next_week_performance=(week_future/value-1)*100)
-df  <- df %>% mutate(past_week_performance=(value/week_past-1)*100)
+PVF(240)
 ```
 
+Past Two years performance vs Next Two years performance
 ```{r}
-grob = grobTree(textGrob(paste("Correlation : ", round(cor(df$past_week_performance, df$next_week_performance, use = "complete.obs"),4)), x = 0.75, y = 0.95, gp = gpar(col = "red", fontsize = 12)))
-
-ggplot(df, aes(x=past_week_performance, y=next_week_performance)) + geom_point(size=0.5) + annotation_custom(grob) + theme(aspect.ratio=1)
+PVF(480)
 ```
 
 
-
+Past Five years performance vs Next Five years performance
 ```{r}
-df <- df %>% mutate(month_past = lag(value,n=20))
-df <- df %>% mutate_at(c("value"), tibble::lst("month_future"=lead), n = 20)
+PVF(1200)
 ```
-
-```{r}
-df <- df %>% mutate(next_month_performance=(month_future/value-1)*100)
-df  <- df %>% mutate(past_month_performance=(value/month_past-1)*100)
-```
-
-```{r}
-grob = grobTree(textGrob(paste("Correlation : ", round(cor(df$past_month_performance, df$next_month_performance, use = "complete.obs"),4)), x = 0.75, y = 0.95, gp = gpar(col = "red", fontsize = 12)))
-
-ggplot(df, aes(x=past_month_performance, y=next_month_performance)) + geom_point(size=0.5) + annotation_custom(grob) + theme(aspect.ratio=1)
-```
-
-
-
-```{r}
-df <- df %>% mutate(one_year_past = lag(value,n=240))
-df <- df %>% mutate_at(c("value"), tibble::lst("one_year_future"=lead), n = 240)
-```
-
-```{r}
-df <- df %>% mutate(next_one_year_performance=(one_year_future/value-1)*100)
-df  <- df %>% mutate(past_one_year_performance=(value/one_year_past-1)*100)
-```
-
-```{r}
-grob = grobTree(textGrob(paste("Correlation : ", round(cor(df$past_one_year_performance, df$next_one_year_performance, use = "complete.obs"),4)), x = 0.75, y = 0.95, gp = gpar(col = "red", fontsize = 12)))
-
-ggplot(df, aes(x=past_one_year_performance, y=next_one_year_performance)) + geom_point(size=0.5) + annotation_custom(grob) + theme(aspect.ratio=1)
-```
-
-
-```{r}
-df <- df %>% mutate(two_years_past = lag(value,n=480))
-df <- df %>% mutate_at(c("value"), tibble::lst("two_years_future"=lead), n = 480)
-```
-
-```{r}
-df <- df %>% mutate(next_two_years_performance=(two_years_future/value-1)*100)
-df  <- df %>% mutate(past_two_years_performance=(value/two_years_past-1)*100)
-```
-
-```{r}
-grob = grobTree(textGrob(paste("Correlation : ", round(cor(df$past_two_years_performance, df$next_two_years_performance, use = "complete.obs"),4)), x = 0.75, y = 0.95, gp = gpar(col = "red", fontsize = 12)))
-
-ggplot(df, aes(x=past_two_years_performance, y=next_two_years_performance)) + geom_point(size=0.5) + annotation_custom(grob) + theme(aspect.ratio=1)
-```
-
-
-
-
-
-```{r}
-df <- df %>% mutate(five_years_past = lag(value,n=1200))
-df <- df %>% mutate_at(c("value"), tibble::lst("five_years_future"=lead), n = 1200)
-```
-
-```{r}
-df <- df %>% mutate(next_five_years_performance=(five_years_future/value-1)*100)
-df  <- df %>% mutate(past_five_years_performance=(value/five_years_past-1)*100)
-```
-
-```{r}
-grob = grobTree(textGrob(paste("Correlation : ", round(cor(df$past_five_years_performance, df$next_five_years_performance, use = "complete.obs"),4)), x = 0.75, y = 0.95, gp = gpar(col = "red", fontsize = 12)))
-
-ggplot(df, aes(x=past_five_years_performance, y=next_five_years_performance)) + geom_point(size=0.5) + annotation_custom(grob) + theme(aspect.ratio=1)
-```
-
